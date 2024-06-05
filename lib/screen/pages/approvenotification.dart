@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+class ApproveNotification extends StatefulWidget {
+  const ApproveNotification({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  State<ApproveNotification> createState() => _ApproveNotificationState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
-
+class _ApproveNotificationState extends State<ApproveNotification> {
   final databaseReference = FirebaseDatabase.instance.reference();
   List<Map<dynamic, dynamic>> notifications = [];
 
   @override
   void initState() {
     super.initState();
-    databaseReference.child('Notifications').onChildAdded.listen((event) {
+    databaseReference.child('ApproveNotifications').onChildAdded.listen((event) {
       setState(() {
         notifications.add(event.snapshot.value as Map<dynamic, dynamic>);
       });

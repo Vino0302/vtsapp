@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vtsapp/screen/pages/dashboard.dart';
 import 'package:vtsapp/screen/pages/booking.dart';
 import 'package:vtsapp/screen/pages/checkavailability.dart';
+import 'package:vtsapp/screen/pages/approvenotification.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -57,7 +58,12 @@ class _DashboardState extends State<Dashboard> with SingleTickerProviderStateMix
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ApproveNotification()),
+              );
+            },
             color: Colors.white,
           ),
           IconButton(

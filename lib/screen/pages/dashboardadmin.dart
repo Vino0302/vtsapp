@@ -3,6 +3,9 @@ import 'package:vtsapp/screen/pages/checkavadmin.dart';
 import 'package:vtsapp/screen/pages/locationtrack.dart';
 import 'package:vtsapp/screen/pages/vehicleregister.dart';
 import 'package:vtsapp/screen/pages/approvebooking.dart';
+import 'package:vtsapp/screen/pages/vv.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 
 class DashboardAdmin extends StatefulWidget {
@@ -13,18 +16,9 @@ class DashboardAdmin extends StatefulWidget {
 }
 
 class _DashboardState extends State<DashboardAdmin> with SingleTickerProviderStateMixin {
-  void onNewBooking() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('New booking received')),
-    );
-  }
 
   late AnimationController _controller;
   late Animation<Offset> _offsetAnimation;
-
-
-  String userName = 'vino';
-
 
   @override
   void initState() {
@@ -69,7 +63,12 @@ class _DashboardState extends State<DashboardAdmin> with SingleTickerProviderSta
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
+            },
             color: Colors.white,
           ),
           IconButton(
@@ -97,13 +96,6 @@ class _DashboardState extends State<DashboardAdmin> with SingleTickerProviderSta
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
-                    ),
-                  ),
-                  Text(
-                    userName,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
                     ),
                   ),
                 ],

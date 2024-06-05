@@ -3,9 +3,8 @@ import 'package:vtsapp/screen/pages/dashboardadmin.dart';
 import 'package:vtsapp/screen/pages/vehicleregister.dart';
 import 'package:vtsapp/screen/pages/locationtrack.dart';
 import 'package:vtsapp/screen/pages/checkavadmin.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-final _firestore = FirebaseFirestore.instance;
+import 'package:firebase_database/firebase_database.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Approve extends StatefulWidget {
   const Approve({super.key});
@@ -15,17 +14,44 @@ class Approve extends StatefulWidget {
 }
 
 class _ApproveState extends State<Approve> {
-  Future<void> approveBooking(String id) async {
-    await _firestore.collection('bookingdata').doc(id).update({
-      'status': 'Approved',
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.reference().child('BookingData');
+  List<Map<String, dynamic>> bookingList = [];
+  Set<String> removedBookings = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRemovedBookings();
+  }
+
+  Future<void> _loadRemovedBookings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      removedBookings = prefs.getStringList('removedBookings')?.toSet() ?? {};
     });
   }
 
+  Future<void> _saveRemovedBookings() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setStringList('removedBookings', removedBookings.toList());
+  }
+
+  Future<void> approveBooking(String id) async {
+    await _databaseReference.child(id).update({'status': 'Approved'});
+  }
+
   Future<void> notApproveBooking(String id) async {
-    await _firestore.collection('bookingdata').doc(id).update({
-      'status': 'Not Approved',
+    await _databaseReference.child(id).update({'status': 'Not Approved'});
+  }
+
+  void removeBookingFromList(String id) {
+    setState(() {
+      removedBookings.add(id);
+      _saveRemovedBookings();
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,15 +130,6 @@ class _ApproveState extends State<Approve> {
             ),
             ListTile(
               title: Text(
-                'Check Availability',
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              onTap: () {},
-            ),
-            ListTile(
-              title: Text(
                 'Register Vehicle',
                 style: TextStyle(
                   color: Colors.white,
@@ -143,97 +160,103 @@ class _ApproveState extends State<Approve> {
         ),
       ),
       body: Container(
-        child: StreamBuilder<QuerySnapshot>(
-            stream: _firestore.collection('bookingdata').snapshots(),
-            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (!snapshot.hasData) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
-          itemBuilder: (BuildContext context, int index) {
-            DocumentSnapshot document = snapshot.data!.docs[index];
-            if (!document.exists) {
-              return Container();
+        child: StreamBuilder<DatabaseEvent>(
+          stream: _databaseReference.onValue,
+          builder: (BuildContext context, AsyncSnapshot<DatabaseEvent> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
+              );
             }
 
-            Map<String, dynamic> data = document.data() as Map<String, dynamic>;
-            if (!data.containsKey('applicant_name')) {
-              return Container();
+            Map<dynamic, dynamic>? bookingData = snapshot.data!.snapshot.value as Map<dynamic, dynamic>?;
+            if (bookingData == null) {
+              return Center(
+                child: Text("No data available"),
+              );
             }
 
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Applicant Name: ${data['applicant_name']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Date of Required: ${data['date_of_required']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Requirement: ${data['requirement']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Time of Required: ${data['time_of_required']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Vehicle in Charge: ${data['vehicle_in_charge']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Vehicle Type: ${data['vehicle_type']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Address: ${data['address']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Date of Arrival: ${data['date_of_arrival']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Date of Arrival: ${data['dateofarrrival']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Distance: ${data['distance']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Nature of Duty: ${data['natureOfDuty']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Num of Officers: ${data['numofofficers']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Time to be Spent: ${data['timetobespent']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Num of Cadets: ${data['num_of_cadets']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Num of Day Scholars: ${data['num_of_day_scholars']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Time to be Spent: ${data['time_to_be_spent']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-                  Text('Duty Type: ${data['duty_type']}',
-                      style: TextStyle(fontSize: 12, color: Colors.black)),
-    SizedBox(height: 8),
-    Padding(
-      padding: const EdgeInsets.only(top: 10),
-      child: Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-      ElevatedButton(
-      onPressed: () {
-      // Your 'Ok' button functionality here
-      },
-      child: Text('Not Approve'),
-      ),
-      SizedBox(width: 8),
-      ElevatedButton(
-      onPressed: () {
-      // Your 'Cancel' button functionality here
-      },
-      child: Text('Approve'),
-      ),
-      ],
-      ),
-    ),
-    ],
-    ),
-    );
-    },
-    );
-    },
-    ),
+            if (bookingList.isEmpty) {
+              bookingData.forEach((key, value) {
+                bookingList.add({'id': key, ...value});
+              });
+            }
+
+            List<Map<String, dynamic>> filteredList = bookingList.where((booking) => !removedBookings.contains(booking['id'])).toList();
+
+            return ListView.builder(
+              itemCount: filteredList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Map<String, dynamic> data = filteredList[index];
+                String documentId = data['id'];
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text('Applicant Name: ${data['applicant_name']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Date of Required: ${data['date_of_required']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Requirement: ${data['requirement']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Time of Required: ${data['time_of_required']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Vehicle in Charge: ${data['vehicle_in_charge']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Vehicle Type: ${data['vehicle_type']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Address: ${data['address']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Date of Arrival: ${data['date_of_arrival']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Distance: ${data['distance']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Nature of Duty: ${data['natureOfDuty']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Num of Officers: ${data['numofofficers']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Time to be Spent: ${data['timetobespent']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Num of Cadets: ${data['num_of_cadets']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Num of Day Scholars: ${data['num_of_day_scholars']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Duty Type: ${data['duty_type']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                databaseReference.child('ApproveNotifications').push().set({
+                                  'title': 'Not Approve Booking',
+                                  'body': 'Your Booking is Not Approve',
+                                  'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                });
+                                notApproveBooking(documentId);
+                                removeBookingFromList(documentId);
+                              },
+                              child: Text('Not Approve'),
+                            ),
+                            SizedBox(width: 8),
+                            ElevatedButton(
+                              onPressed: ()  {
+                                databaseReference.child('ApproveNotifications').push().set({
+                                  'title': 'Approve Booking',
+                                  'body': 'Your Booking is Approve',
+                                  'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                });
+                                approveBooking(documentId);
+                                removeBookingFromList(documentId);
+                              },
+                              child: Text('Approve'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
 }
+
+
+
+
+

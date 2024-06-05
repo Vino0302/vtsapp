@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:vtsapp/screen/pages/dashboardadmin.dart';
 import 'package:vtsapp/screen/pages/vehicleregister.dart';
 import 'package:vtsapp/screen/pages/approvebooking.dart';
@@ -13,7 +13,7 @@ class CheckAdminAvailablity extends StatefulWidget {
 }
 
 class _CheckAdminAvailablityState extends State<CheckAdminAvailablity> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.reference();
   String? _selectedVehicleType;
   bool _isBooked = false;
 
@@ -114,10 +114,11 @@ class _CheckAdminAvailablityState extends State<CheckAdminAvailablity> {
                   color: Colors.white,
                 ),
               ),
-              onTap: () {Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Approve()),
-              );
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Approve()),
+                );
               },
             ),
             ListTile(
@@ -196,17 +197,21 @@ class _CheckAdminAvailablityState extends State<CheckAdminAvailablity> {
                         ),
                         onPressed: () async {
                           if (_selectedVehicleType != null) {
-                            QuerySnapshot snapshot = await _firestore
-                                .collection('bookingdata')
-                                .where('vehicle_type', isEqualTo: _selectedVehicleType)
-                                .get();
-                            if (snapshot.docs.isNotEmpty) {
+                            DatabaseEvent event = await _databaseReference
+                                .child('bookingdata')
+                                .orderByChild('vehicle_type')
+                                .equalTo(_selectedVehicleType)
+                                .once();
+
+                            DataSnapshot snapshot = event.snapshot;
+
+                            if (snapshot.value != null) {
                               setState(() {
                                 _isBooked = true;
                               });
                               showDialog(
                                 context: context,
-                                builder: (BuildContextcontext) {
+                                builder: (BuildContext context) {
                                   return AlertDialog(
                                     title: Text('Vehicle Status'),
                                     content: Text('The selected vehicle type is booked.'),
@@ -261,3 +266,4 @@ class _CheckAdminAvailablityState extends State<CheckAdminAvailablity> {
     );
   }
 }
+

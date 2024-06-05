@@ -1,4 +1,6 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vtsapp/screen/pages/adminLog.dart';
 import 'package:vtsapp/screen/pages/approvebooking.dart';
 import 'package:vtsapp/screen/pages/booking.dart';
@@ -17,20 +19,15 @@ import 'package:vtsapp/screen/pages/locationtrack.dart';
 import "package:firebase_core/firebase_core.dart";
 import 'firebase_options.dart';
 
-import 'package:vtsapp/screen/pages/email.dart';
 
-
-
-
-
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -40,15 +37,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return  MaterialApp(
         title: 'My Flutter App',
         themeMode: ThemeMode.dark,
-        home:CheckAvailability()
+        home: BookingScreen(),
     );
-
   }
 }
-

@@ -4,7 +4,7 @@ import 'package:vtsapp/screen/pages/bookingthird.dart';
 import 'package:vtsapp/screen/pages/dashboard.dart';
 import 'package:vtsapp/screen/pages/booking.dart';
 import 'package:vtsapp/screen/pages/checkavailability.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class BookingNext extends StatefulWidget {
   const BookingNext({super.key});
@@ -15,7 +15,8 @@ class BookingNext extends StatefulWidget {
 
 class _BookingNextState extends State<BookingNext> {
   final _formKey = GlobalKey<FormState>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final databaseReference = FirebaseDatabase.instance.reference();
+
   String? _natureOfDuty;
   String? _Address;
   String? _Distance;
@@ -117,8 +118,7 @@ class _BookingNextState extends State<BookingNext> {
         ),
       ),
       body: Padding(
-        padding:
-            const EdgeInsets.only(top: 60, left: 35, right: 35, bottom: 25),
+        padding: const EdgeInsets.only(top: 60, left: 35, right: 35, bottom: 25),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,11 +132,9 @@ class _BookingNextState extends State<BookingNext> {
                       decoration: InputDecoration(
                         labelText: 'Nature Of Duty (Official/Private)',
                         filled: true,
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -151,11 +149,9 @@ class _BookingNextState extends State<BookingNext> {
                       decoration: InputDecoration(
                         labelText: 'Address To Go',
                         filled: true,
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -171,10 +167,8 @@ class _BookingNextState extends State<BookingNext> {
                         labelText: 'Distance',
                         filled: true,
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -190,11 +184,9 @@ class _BookingNextState extends State<BookingNext> {
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.date_range_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.date_range_outlined, color: Colors.blue[900]),
                         labelText: 'Date Of Arrival',
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                       ),
                       onTap: () async {
                         final DateTime? picked = await showDatePicker(
@@ -220,10 +212,8 @@ class _BookingNextState extends State<BookingNext> {
                         labelText: 'Time To Be Spent',
                         filled: true,
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -239,10 +229,8 @@ class _BookingNextState extends State<BookingNext> {
                         labelText: 'Number of Officers',
                         filled: true,
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.description_outlined,
-                            color: Colors.blue[900]),
-                        labelStyle:
-                            TextStyle(color: Colors.black, fontSize: 18),
+                        prefixIcon: Icon(Icons.description_outlined, color: Colors.blue[900]),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -256,14 +244,24 @@ class _BookingNextState extends State<BookingNext> {
                     Center(
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[900],
+                          padding: EdgeInsets.all(10), // Adjust the padding as needed
                         ),
                         onPressed: () {
                           _submitForm();
-                          },
-                        child: Text('Next',style: TextStyle(color: Colors.white, fontSize: 18),),
-
-                                  ),
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.blue[900],
+                          ),
+                          padding: EdgeInsets.all(10), // Adjust the padding as needed
+                          child: Icon(
+                            Icons.arrow_forward,
+                            size: 25,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
                     ),
                   ],
                 ),
@@ -274,37 +272,32 @@ class _BookingNextState extends State<BookingNext> {
       ),
     );
   }
-  void _submitForm() {
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      Map<String, dynamic> data = {
-      'natureOfDuty': _natureOfDuty,
-      'address': _Address,
-      'distance':_Distance,
-      'date_of_arrival': _dateOfArrival,
-      'timetobespent':_timeToBeSpent,
-      'dateofarrrival':_dateOfArrival,
-      'numofofficers':_numOfOffices,
-
-    };
-      _firestore.collection('bookingdata').add(data)
-          .then((value) {
-        print("Data added successfully!");
+      try {
+        Map<String, dynamic> data = {
+          'natureOfDuty': _natureOfDuty,
+          'address': _Address,
+          'distance': _Distance,
+          'date_of_arrival': _dateOfArrival != null ? _dateOfArrival!.toIso8601String() : null,
+          'time_to_be_spent': _timeToBeSpent,
+          'num_of_officers': _numOfOffices,
+        };
+        await databaseReference.child('BookingData').push().set(data);
+        print("Data sent to Realtime Database!");
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => BookingThird()),
         );
-      })
-          .catchError((error) {
-        print("Failed to add user: $error");
-        // Handle error here
-      });
+      } catch (e) {
+        print("Error: $e");
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error sending data to Realtime Database'),
+        ));
+      }
     }
-  }
-  String _formatTime(TimeOfDay time) {
-    final now = DateTime.now();
-    final dateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    return DateFormat('HH:mm').format(dateTime);
   }
 }
 

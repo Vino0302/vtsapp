@@ -65,8 +65,7 @@ class _LogUserState extends State<LogUser> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-          child: Container(
+      body: Container(
         width: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -234,7 +233,7 @@ class _LogUserState extends State<LogUser> {
             ),
           ],
         ),
-      )),
+      )
     );
   }
 }

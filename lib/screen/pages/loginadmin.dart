@@ -65,8 +65,7 @@ class LoginAdminScreen_State extends State<LoginAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Container(
+      body:Container(
           width: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -233,7 +232,6 @@ class LoginAdminScreen_State extends State<LoginAdminScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 }

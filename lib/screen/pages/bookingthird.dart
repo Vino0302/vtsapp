@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vtsapp/screen/pages/dashboard.dart';
 import 'package:vtsapp/screen/pages/booking.dart';
 import 'package:vtsapp/screen/pages/checkavailability.dart';
-import 'package:vtsapp/screen/pages/usernotification.dart';
-
+import 'package:vtsapp/screen/pages/dashboardadmin.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class BookingThird extends StatefulWidget {
   const BookingThird({super.key});
@@ -14,10 +15,7 @@ class BookingThird extends StatefulWidget {
 }
 
 class _BookingThirdState extends State<BookingThird> {
-  void sendBookingNotification(BuildContext context) {
-    // Send a message to user_notification.dart
-    UserNotification.show(context, 'New booking came!');
-  }
+  final databaseReference = FirebaseDatabase.instance.reference();
   final _formKey = GlobalKey<FormState>();
 
   String? _applicantName;
@@ -38,6 +36,8 @@ class _BookingThirdState extends State<BookingThird> {
   String? _numOfDayScholar;
   String? _totalCount;
   String? _routeToFollow;
+
+  bool _showSendNotificationButton = true;
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +133,7 @@ class _BookingThirdState extends State<BookingThird> {
         ),
       ),
       body: Padding(
-        padding:
-        const EdgeInsets.only(top: 60, left: 35, right: 35, bottom: 25),
+        padding: const EdgeInsets.only(top: 60, left: 35, right: 35, bottom: 25),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,11 +147,9 @@ class _BookingThirdState extends State<BookingThird> {
                       decoration: InputDecoration(
                         labelText: 'Number Of Lectures And Civil Staff',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -162,18 +159,14 @@ class _BookingThirdState extends State<BookingThird> {
                       },
                       onSaved: (value) => _numOfLecAndCivil = value,
                     ),
-                    SizedBox(
-                      height: 25,
-                    ),
+                    SizedBox(height: 25),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Number Of Instructors',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -188,11 +181,9 @@ class _BookingThirdState extends State<BookingThird> {
                       decoration: InputDecoration(
                         labelText: 'Number of Cadets',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -207,11 +198,9 @@ class _BookingThirdState extends State<BookingThird> {
                       decoration: InputDecoration(
                         labelText: 'Number of Day Scholars',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -226,11 +215,9 @@ class _BookingThirdState extends State<BookingThird> {
                       decoration: InputDecoration(
                         labelText: 'Total Count',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -240,18 +227,14 @@ class _BookingThirdState extends State<BookingThird> {
                       },
                       onSaved: (value) => _totalCount = value,
                     ),
-                    SizedBox(
-                      height: 25,
-                    ),
+                    SizedBox(height: 25),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Route To Follow',
                         filled: true,
-                        labelStyle:
-                        TextStyle(color: Colors.black, fontSize: 18),
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                         fillColor: Colors.blue[100],
-                        prefixIcon: Icon(Icons.type_specimen_outlined,
-                            color: Colors.blue[900]),
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -262,82 +245,90 @@ class _BookingThirdState extends State<BookingThird> {
                       onSaved: (value) => _routeToFollow = value,
                     ),
                     SizedBox(height: 40),
-                    Center(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[900],
-                          ),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              _formKey.currentState!.save();
-                              try {
-                                final data = {
-                                  if (_applicantName != null)
-                                    'applicant_name': _applicantName,
-                                  if (_vehicleType != null)
-                                    'vehicle_type': _vehicleType,
-                                  if (_vehicleInCharge != null)
-                                    'vehicle_in_charge': _vehicleInCharge,
-                                  if (_dateOfRequired != null)
-                                    'date_of_required':
-                                    Timestamp.fromDate(_dateOfRequired!),
-                                  if (_timeOfRequired != null)
-                                    'time_of_required':
-                                    Timestamp.fromDate(DateTime(_timeOfRequired!.hour, _timeOfRequired!.minute)),
-                                  if (_requirement != null)
-                                    'requirement': _requirement,
-                                  if (_natureOfDuty != null)
-                                    'nature_of_duty': _natureOfDuty,
-                                  if (_Address != null)
-                                    'address': _Address,
-                                  if (_Distance != null)
-                                    'distance': _Distance,
-                                  if (_dateOfArrival != null)
-                                    'date_of_arrival':
-                                    Timestamp.fromDate(_dateOfArrival!),
-                                  if (_timeToBeSpent != null)
-                                    'time_to_be_spent': _timeToBeSpent,
-                                  if (_numOfOffices != null)
-                                    'num_of_officers': _numOfOffices,
-                                  if (_numOfLecAndCivil != null)
-                                    'num_of_lectures_and_civil':
-                                    _numOfLecAndCivil,
-                                  if (_numOfInstructors != null)
-                                    'num_of_instructors': _numOfInstructors,
-                                  if (_numOfCadets != null)
-                                    'num_of_cadets': _numOfCadets,
-                                  if (_numOfDayScholar != null)
-                                    'num_of_day_scholars': _numOfDayScholar,
-                                  if (_totalCount != null)
-                                    'total_count': _totalCount,
-                                  if (_routeToFollow != null)
-                                    'route_to_follow': _routeToFollow,
-                                };
+                   Center(
+                     child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[900],
+                              ),
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  try {
+                                    final data = {
+                                      if (_applicantName != null)
+                                        'applicant_name': _applicantName,
+                                      if (_vehicleType != null)
+                                        'vehicle_type': _vehicleType,
+                                      if (_vehicleInCharge != null)
+                                        'vehicle_in_charge': _vehicleInCharge,
+                                      if (_dateOfRequired != null)
+                                        'date_of_required':
+                                        Timestamp.fromDate(_dateOfRequired!),
+                                      if (_timeOfRequired != null)
+                                        'time_of_required':
+                                        Timestamp.fromDate(DateTime(_timeOfRequired!.hour, _timeOfRequired!.minute)),
+                                      if (_requirement != null)
+                                        'requirement': _requirement,
+                                      if (_natureOfDuty != null)
+                                        'nature_of_duty': _natureOfDuty,
+                                      if (_Address != null)
+                                        'address': _Address,
+                                      if (_Distance != null)
+                                        'distance': _Distance,
+                                      if (_dateOfArrival != null)
+                                        'date_of_arrival':
+                                        Timestamp.fromDate(_dateOfArrival!),
+                                      if (_timeToBeSpent != null)
+                                        'time_to_be_spent': _timeToBeSpent,
+                                      if (_numOfOffices != null)
+                                        'num_of_officers': _numOfOffices,
+                                      if (_numOfLecAndCivil != null)
+                                        'num_of_lectures_and_civil':
+                                        _numOfLecAndCivil,
+                                      if (_numOfInstructors != null)
+                                        'num_of_instructors': _numOfInstructors,
+                                      if (_numOfCadets != null)
+                                        'num_of_cadets': _numOfCadets,
+                                      if (_numOfDayScholar != null)
+                                        'num_of_day_scholars': _numOfDayScholar,
+                                      if (_totalCount != null)
+                                        'total_count': _totalCount,
+                                      if (_routeToFollow != null)
+                                        'route_to_follow': _routeToFollow,
+                                    };
 
-                                print('Data to be added:');
-                                print(data);
-                                await FirebaseFirestore.instance.collection('bookingdata').add(data);
-                                print('Document added');
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => BookingThird()),
-                                );
-                              } catch (e) {
-                                print('Error adding document: $e');
-                              }
-                            }
-                          },
-                          child: Text('Book', style: TextStyle(color: Colors.white, fontSize: 18),),
-                        ),
-                    ),
-                  ],
-                ),
-              ),
+                                    print('Data to be added:');
+                                    print(data);
+                                    databaseReference.child('BookingData').push().set(data);
+                                    // Send notification message to admin
+                                    databaseReference.child('Notifications').push().set({
+                                      'title': 'New Booking',
+                                      'body': 'A new booking has been made.',
+                                      'timestamp': DateTime.now().millisecondsSinceEpoch,
+                                    });
+                                    print('Data sent to Realtime Database');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => BookingThird()),
+                                    );
+                                  } catch (e) {
+                                    print('Error sending data to Realtime Database: $e');
+                                  }
+                                }
+                              },
+                              child: Text(
+                                'Book',
+                                style: TextStyle(color: Colors.white, fontSize: 18),
+                              ),
+                            ),
+                   ),
             ],
+                ),
           ),
+          ],
         ),
-      ),
+    ),
+    ),
     );
   }
 }
-

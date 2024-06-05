@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:vtsapp/screen/pages/bookinnext.dart';
 import 'package:vtsapp/screen/pages/dashboard.dart';
 import 'package:vtsapp/screen/pages/checkavailability.dart';
-
 
 class BookingScreen extends StatefulWidget {
   @override
@@ -14,7 +14,8 @@ class BookingScreen extends StatefulWidget {
 
 class _BookingScreenState extends State<BookingScreen> {
   final _formKey = GlobalKey<FormState>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final DatabaseReference databaseReference = FirebaseDatabase.instance.reference();
+
   String? _applicantName;
   String? _vehicleType;
   String? _vehicleInCharge;
@@ -141,7 +142,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                       onSaved: (value) => _applicantName = value,
                     ),
-                    SizedBox(height: 25),
+                    SizedBox(height: 35),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
                         labelText: 'Vehicle Type',
@@ -151,7 +152,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         labelStyle: TextStyle(color: Colors.black, fontSize: 18),
                       ),
                       value: _vehicleType,
-                      items: ['Staff Bus 01', 'Staff Bus 02', 'Van 01','Van 02','Van o3','Wheel 01','Wheel 02']
+                      items: ['Staff Bus 01', 'Staff Bus 02', 'Van 01','Van 02','Van 03','Wheel 01','Wheel 02']
                           .map((label) => DropdownMenuItem(
                         value: label,
                         child: Text(label),
@@ -159,7 +160,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           .toList(),
                       onChanged: (value)=> setState(() => _vehicleType = value),
                     ),
-                    SizedBox(height: 25),
+                    SizedBox(height: 35),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Vehicle In Charge',
@@ -176,7 +177,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                       onSaved: (value) => _vehicleInCharge = value,
                     ),
-                    SizedBox(height: 25),
+                    SizedBox(height: 35),
                     Row(
                       children: [
                         Expanded(
@@ -203,7 +204,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                   Icon(Icons.calendar_today, color: Colors.blue[900]),
                                   SizedBox(width: 3),
                                   Text(_dateOfRequired == null
-                                      ?'Required Date'
+                                      ? 'Required Date'
                                       : DateFormat('yyyy-MM-dd').format(_dateOfRequired!),
                                   ),
                                 ],
@@ -243,7 +244,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 25,),
+                    SizedBox(height: 35,),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Requirement',
@@ -258,19 +259,32 @@ class _BookingScreenState extends State<BookingScreen> {
                         }
                         return null;
                       },
-                      onSaved: (value) => _requirement =value,
+                      onSaved: (value) => _requirement = value,
                     ),
-                    SizedBox(height: 30),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[900],
-                      ),
-                      onPressed: () {
-                        _submitForm();
-                      },
-                      child: Text('Next',style: TextStyle(color: Colors.white, fontSize: 18),),
+                    SizedBox(height: 40),
+                    Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(10), // Adjust the padding as needed
+                          ),
+                          onPressed: () {
+                            _submitForm();
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue[900],
+                            ),
+                            padding: EdgeInsets.all(10), // Adjust the padding as needed
+                            child: Icon(
+                              Icons.arrow_forward,
+                              size: 25,
+                              color: Colors.white,
+                            ),
+                          ),
+                        )
+                    ),
 
-                    ),
                   ],
                 ),
               ),
@@ -280,29 +294,33 @@ class _BookingScreenState extends State<BookingScreen> {
       ),
     );
   }
-  void _submitForm() {
+
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      Map<String, dynamic> data = {
-        'applicant_name': _applicantName,
-        'vehicle_type': _vehicleType,
-        'vehicle_in_charge': _vehicleInCharge,
-        'date_of_required': _dateOfRequired,
-        'time_of_required': _formatTime(_timeOfRequired!), // Convert TimeOfDay to String
-        'requirement': _requirement,
-      };
-      _firestore.collection('bookingdata').add(data)
-          .then((value) {
-        print("Data added successfully!");
+      try {
+        Map<String, dynamic> data = {
+          'applicant_name': _applicantName,
+          'vehicle_type': _vehicleType,
+          'vehicle_in_charge': _vehicleInCharge,
+          'date_of_required': _dateOfRequired != null ? _dateOfRequired!.toIso8601String() : null,
+          'time_of_required': _timeOfRequired != null ? _formatTime(_timeOfRequired!) : null,
+          'requirement': _requirement,
+        };
+        print("Data to be sent: $data");
+        await databaseReference.child('BookingData').push().set(data);
+        print("Data sent to Realtime Database!");
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => BookingNext()),
         );
-      })
-          .catchError((error) {
-        print("Failed to add user: $error");
-        // Handle error here
-      });
+      } catch (e) {
+        print("Error: $e");
+        // Display an error message to the user
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Error sending data to Realtime Database'),
+        ));
+      }
     }
   }
 
@@ -311,6 +329,4 @@ class _BookingScreenState extends State<BookingScreen> {
     final dateTime = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     return DateFormat('HH:mm').format(dateTime);
   }
-
-
 }
