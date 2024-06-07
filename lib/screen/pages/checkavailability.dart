@@ -164,7 +164,7 @@ class _CheckAvailabilityState extends State<CheckAvailability> {
                         onPressed: () async {
                           if (_selectedVehicleType != null) {
                             DatabaseEvent event = await _databaseReference
-                                .child('bookingdata')
+                                .child('BookingData')
                                 .orderByChild('vehicle_type')
                                 .equalTo(_selectedVehicleType)
                                 .once();

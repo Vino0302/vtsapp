@@ -203,13 +203,20 @@ class _ApproveState extends State<Approve> {
                       Text('Vehicle Type: ${data['vehicle_type']}', style: TextStyle(fontSize: 12, color: Colors.black)),
                       Text('Address: ${data['address']}', style: TextStyle(fontSize: 12, color: Colors.black)),
                       Text('Date of Arrival: ${data['date_of_arrival']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Distance: ${data['distance']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Nature of Duty: ${data['natureOfDuty']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Num of Officers: ${data['numofofficers']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Time to be Spent: ${data['timetobespent']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Num of Cadets: ${data['num_of_cadets']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Num of Day Scholars: ${data['num_of_day_scholars']}', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      Text('Duty Type: ${data['duty_type']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                //      Text('Distance: ${data['distance']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                     Text('Duty Type: ${data['natureOfDuty']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                //      Text('Num of Officers: ${data['num_of_officers']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+               //       Text('Time to be Spent: ${data['time_to_be_spent']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                //      Text('Num of Cadets: ${data['num_of_cadets']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                //      Text('Num of Day Scholars: ${data['num_of_day_scholars']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+               //       Text('Num of Instructions: ${data['num_of_instructors']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                //      Text('Num of Lectures And Civil Staff: ${data['num_of_lectures_and_civil']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Route To Follow: ${data['route_to_follow']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+                      Text('Total Count: ${data['total_count']}', style: TextStyle(fontSize: 12, color: Colors.black)),
+
+
+
+
                       SizedBox(height: 8),
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
@@ -255,7 +262,6 @@ class _ApproveState extends State<Approve> {
     );
   }
 }
-
 
 
 

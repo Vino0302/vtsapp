@@ -198,7 +198,7 @@ class _CheckAdminAvailablityState extends State<CheckAdminAvailablity> {
                         onPressed: () async {
                           if (_selectedVehicleType != null) {
                             DatabaseEvent event = await _databaseReference
-                                .child('bookingdata')
+                                .child('BookingData')
                                 .orderByChild('vehicle_type')
                                 .equalTo(_selectedVehicleType)
                                 .once();

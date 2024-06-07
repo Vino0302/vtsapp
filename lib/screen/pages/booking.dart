@@ -22,6 +22,11 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime? _dateOfRequired;
   TimeOfDay? _timeOfRequired;
   String? _requirement;
+  String? _routeToFollow;
+  String? _totalCount;
+  DateTime? _dateOfArrival;
+  String? _Address;
+  String? _natureOfDuty;
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +122,7 @@ class _BookingScreenState extends State<BookingScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 60, left: 35, right: 35, bottom: 5),
+        padding: const EdgeInsets.only(top: 20, left: 35, right: 35, bottom: 5),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -142,7 +147,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                       onSaved: (value) => _applicantName = value,
                     ),
-                    SizedBox(height: 35),
+                    SizedBox(height: 10,),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
                         labelText: 'Vehicle Type',
@@ -160,7 +165,7 @@ class _BookingScreenState extends State<BookingScreen> {
                           .toList(),
                       onChanged: (value)=> setState(() => _vehicleType = value),
                     ),
-                    SizedBox(height: 35),
+                    SizedBox(height: 10,),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Vehicle In Charge',
@@ -177,7 +182,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                       onSaved: (value) => _vehicleInCharge = value,
                     ),
-                    SizedBox(height: 35),
+                    SizedBox(height: 10,),
                     Row(
                       children: [
                         Expanded(
@@ -244,7 +249,7 @@ class _BookingScreenState extends State<BookingScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 35,),
+                    SizedBox(height: 10,),
                     TextFormField(
                       decoration: InputDecoration(
                         labelText: 'Requirement',
@@ -261,7 +266,86 @@ class _BookingScreenState extends State<BookingScreen> {
                       },
                       onSaved: (value) => _requirement = value,
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Address To Go',
+                        filled: true,
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
+                        fillColor: Colors.blue[100],
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the Address';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => _Address = value,
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Route To Follow',
+                        filled: true,
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
+                        fillColor: Colors.blue[100],
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the Route To Follow';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => _routeToFollow = value,
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.blue[100],
+                        prefixIcon: Icon(Icons.date_range_outlined, color: Colors.blue[900]),
+                        labelText: 'Date Of Arrival',
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: _dateOfArrival ?? DateTime.now(),
+                          firstDate: DateTime(2022),
+                          lastDate: DateTime(2030),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            _dateOfArrival = picked;
+                          });
+                        }
+                      },
+                      readOnly: true,
+                      initialValue: _dateOfArrival != null
+                          ? DateFormat('yyyy-MM-dd').format(_dateOfArrival!)
+                          : '',
+                    ),
+                    SizedBox(height: 10,),
+                    TextFormField(
+                      decoration: InputDecoration(
+                        labelText: 'Total Count',
+                        filled: true,
+                        labelStyle: TextStyle(color: Colors.black, fontSize: 18),
+                        fillColor: Colors.blue[100],
+                        prefixIcon: Icon(Icons.type_specimen_outlined, color: Colors.blue[900]),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the Total Count';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) => _totalCount = value,
+                    ),
+                    SizedBox(height: 20),
                     Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -276,10 +360,9 @@ class _BookingScreenState extends State<BookingScreen> {
                               color: Colors.blue[900],
                             ),
                             padding: EdgeInsets.all(10), // Adjust the padding as needed
-                            child: Icon(
-                              Icons.arrow_forward,
-                              size: 25,
-                              color: Colors.white,
+                            child:Text(
+                              'Book',
+                              style: TextStyle(color: Colors.white, fontSize: 18),
                             ),
                           ),
                         )
@@ -306,13 +389,19 @@ class _BookingScreenState extends State<BookingScreen> {
           'date_of_required': _dateOfRequired != null ? _dateOfRequired!.toIso8601String() : null,
           'time_of_required': _timeOfRequired != null ? _formatTime(_timeOfRequired!) : null,
           'requirement': _requirement,
+          'route_to_follow': _routeToFollow,
+          'nature_of_duty': _natureOfDuty,
+          'address': _Address,
+          'date_of_arrival': _dateOfArrival != null ? _dateOfArrival!.toIso8601String() : null,
+          'total_count': _totalCount,
+
         };
         print("Data to be sent: $data");
         await databaseReference.child('BookingData').push().set(data);
         print("Data sent to Realtime Database!");
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => BookingNext()),
+          MaterialPageRoute(builder: (context) => BookingScreen()),
         );
       } catch (e) {
         print("Error: $e");
